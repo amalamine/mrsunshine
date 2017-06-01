@@ -1,5 +1,4 @@
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var sunEndpointHeader = "https://api.sunrise-sunset.org/json?lat="
 var geoEndpointHeader = "http://maps.googleapis.com/maps/api/geocode/json?address="
 var timezoneEndpointHeader = "https://maps.googleapis.com/maps/api/timezone/json?location="
 var timezoneEndpointFooter = "&timestamp=1331161200&key=%20AIzaSyDRjUDsuL7qn1eVIY2o831XDV7G0vYQuls"
@@ -86,22 +85,13 @@ const varsToUpdateAfterWatson = {
     value: false, //Set a particular value on every call, set to false to ignore this field.
     forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
     function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
-      if ((answerText[0].indexOf("Let me check")!=-1)) {
-        console.log("API call ahead")
-        var http = new XMLHttpRequest();
-        http.open('GET', sunEndpointHeader + lat + "&lng=" + lng + "&date=" + context["date"], false);
-        http.send(null);
-        if (http.status === 200) {
-          var resp = JSON.parse(http.responseText)
-          sunsetTime = resp.results.sunset
-          sunriseTime = resp.results.sunrise
-          sunsetTime = convertTime(sunsetTime);
-          console.log("Got actual sunset time: " + sunsetTime)
-        }
-      } else if (context[key] !== sunsetTime) {
-        sunsetTime = context[key];
+      var returnValue = 0;
+      if (true) { //Set a condition here, depending on entities, intents, context variables, or user input
+        console.log("I should probably calculate the sunset time here")
+      } else if (context[key] !== returnValue) {
+        returnValue = context[key];
       }
-      return sunsetTime;
+      return returnValue;
     }
   },
   sunrise: {
@@ -109,13 +99,12 @@ const varsToUpdateAfterWatson = {
     forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
     function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
       var returnValue = 0;
-      if ((answerText[0].indexOf("Let me check")!=-1)) {
-        sunriseTime = convertTime(sunriseTime)
-        console.log("Got actual sunrise time: " + sunriseTime)
-      } else if (context[key] !== sunriseTime) {
-        sunriseTime = context[key];
+      if (true) { //Set a condition here, depending on entities, intents, context variables, or user input
+        console.log("I should probably calculate the sunrise time here")
+      } else if (context[key] !== returnValue) {
+        returnValue = context[key];
       }
-      return sunriseTime;
+      return returnValue;
     }
   }
 };
@@ -207,13 +196,6 @@ module.exports = {
         }
       }
     }
-    //Send results
-    if ((watsonUpdate.output.text[0].indexOf("Let me check")!=-1) && watsonUpdate.context["param"]=="sunset"){
-      watsonUpdate.output.text[watsonUpdate.output.text.length+1] = "The sunset time in " + watsonUpdate.context["location"] + " on " + watsonUpdate.context["date"] + " is " + watsonUpdate.context["sunset"] + ", " + watsonUpdate.context["timezone"] + " time."
-    }
-    if (watsonUpdate.output.text[0].indexOf("Let me check")!=-1 && watsonUpdate.context["param"]=="sunrise"){
-      watsonUpdate.output.text[watsonUpdate.output.text.length+1] = "The sunrise time in " + watsonUpdate.context["location"] + " on " + watsonUpdate.context["date"] + " is " + watsonUpdate.context["sunrise"] + ", " + watsonUpdate.context["timezone"] + " time."
-    }
-    //Send results
+    //Send results here
   }
 }
