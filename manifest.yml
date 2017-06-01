@@ -1,0 +1,6 @@
+---
+applications:
+- name: mrsunshine-amalamine
+  memory: 512M
+  instances: 1
+  host: mrsunshine-amalamine
