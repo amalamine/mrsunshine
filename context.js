@@ -1,9 +1,15 @@
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+require('dotenv').config({
+  silent: true
+});
+
 var sunEndpointHeader = "https://api.sunrise-sunset.org/json?lat="
 var geoEndpointHeader = "http://maps.googleapis.com/maps/api/geocode/json?address="
 var timezoneEndpointHeader = "https://maps.googleapis.com/maps/api/timezone/json?location="
 var timezoneEndpointFooter = "&timestamp=1331161200&key=%20AIzaSyDRjUDsuL7qn1eVIY2o831XDV7G0vYQuls"
 var conversionEndpointHeader = "http://api.timezonedb.com/v2/convert-time-zone?key=U89UI3AQNCMP&format=json&from=GMT&to="
+var fbUserProfileEndpointHeader = "https://graph.facebook.com/v2.6/";
+var fbUserProfileEndpointFooter = "?fields=first_name,last_name,locale,timezone,gender&access_token=";
 
 
 //set values
@@ -14,17 +20,76 @@ var sunsetTimestamp;
 var sunriseTimestamp;
 var sunsetTime;
 var sunriseTime;
+var firstname, lastname, gender;
 
 const varsToUpdateBeforeWatson = {
-  /*variableName: {
-    value: false OR value, //Set a particular value on every call, set to false to ignore this field.
+  userid: {
+    value: false, //Set a particular value on every call, set to false to ignore this field.
     forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
     function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
-      return new_context[key]_value;
+      var returnValue = 0;
+      console.log("setting userid before Watson")
+      console.log(context["userid"])
+      if (context["userid"]){
+        var http = new XMLHttpRequest();
+        http.open('GET', fbUserProfileEndpointHeader + context["userid"] + fbUserProfileEndpointFooter + process.env.MESSENGER_PAGE_TOKEN, false);
+        http.send(null);
+        if (http.status === 200) {
+          var resp = JSON.parse(http.responseText)
+          firstname = resp['first_name'];
+          lastname = resp['last_name'];
+          gender = resp['gender'];
+          console.log("GOT User Profile: " + JSON.stringify(resp))
+        }
+        return context["userid"];
+      }
     }
-  }*/
+  },
+  firstname: {
+    value: false, //Set a particular value on every call, set to false to ignore this field.
+    forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
+    function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
+      return firstname;
+    }
+  },
+  lastname: {
+    value: false, //Set a particular value on every call, set to false to ignore this field.
+    forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
+    function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
+      return lastname;
+    }
+  },
+  gender: {
+    value: false, //Set a particular value on every call, set to false to ignore this field.
+    forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
+    function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
+      return gender;
+    }
+  }
 };
 const varsToUpdateAfterWatson = {
+  userid: {
+    value: false, //Set a particular value on every call, set to false to ignore this field.
+    forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
+    function: function(answerText, context, key) { //Different sets of actions depending on the answerText, can access the whole context, must not update context. @return the new context[key] value.
+      var returnValue = 0;
+      console.log("setting userid after Watson")
+      console.log(context["userid"])
+      if (context["userid"]){
+        var http = new XMLHttpRequest();
+        http.open('GET', fbUserProfileEndpointHeader + context["userid"] + fbUserProfileEndpointFooter + process.env.MESSENGER_PAGE_TOKEN, false);
+        http.send(null);
+        if (http.status === 200) {
+          var resp = JSON.parse(http.responseText)
+          firstname = resp['first_name'];
+          lastname = resp['last_name'];
+          gender = resp['gender'];
+          console.log("GOT User Profile: " + JSON.stringify(resp))
+        }
+        return context["userid"];
+      }
+    }
+  },
   latitude: {
     value: false, //Set a particular value on every call, set to false to ignore this field.
     forceIfUndefined: true, //If the context variable does not exist yet, tells if it should be created
@@ -168,7 +233,8 @@ module.exports = {
    * @param   {string}    messageText         user text message
    * @return  {Object}                        modified context
    */
-  setContextToWatson: function(inMemoryContext, messageText) {
+  setContextToWatson: function(inMemoryContext, messageText, userid) {
+    inMemoryContext["userid"] = userid;
     if (Object.keys(varsToUpdateBeforeWatson).length !== 0) {
       for (key in varsToUpdateBeforeWatson) {
         var currentUpdate = varsToUpdateBeforeWatson[key];

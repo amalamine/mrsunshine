@@ -47,17 +47,19 @@ const botmaster = new Botmaster(botmasterSettings);
 const inMemoryContexts = {};
 botmaster.on('update', (bot, update) => {
   var optionalDelay = 0;
-  var firstText = "";
+  var firstText = "CONVOSTART" + update.sender.id;
   var context = inMemoryContexts[update.sender.id];
   if (inMemoryContexts[update.sender.id]) {
+    console.log("sending sender.id within context")
     context = Context.setContextToWatson(JSON.parse(JSON.stringify(context)),
-      update.message.text);
+      update.message.text, update.sender.id);
   } else {
+    console.log("sending CONVOSTART")
     const messageForWatson = {
       context,
       workspace_id: process.env.WORKSPACE_ID,
         input: {
-          text: "",
+          text: "CONVOSTART" + update.sender.id,
         },
     };
     watsonConversation.message(messageForWatson, (err, watsonUpdate) => {

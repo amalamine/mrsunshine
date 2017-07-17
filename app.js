@@ -57,7 +57,7 @@ app.post('/api/message', function(req, res) {
     }
     if (req.body.context) {
       payload.context = Context.setContextToWatson(JSON.parse(JSON.stringify(
-        req.body.context)), payload.input);
+        req.body.context)), payload.input, "no user");
     }
   }
   // Send the input to the conversation service
